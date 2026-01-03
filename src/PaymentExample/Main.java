@@ -1,3 +1,5 @@
+package PaymentExample;
+
 // Entry point of the application
 // Demonstrates Strategy + Decorator + Observer patterns working together
 public class Main {

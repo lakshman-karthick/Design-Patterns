@@ -1,3 +1,5 @@
+package PaymentExample;
+
 /**
  * OBSERVER INTERFACE
  * ------------------
