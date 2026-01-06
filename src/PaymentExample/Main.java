@@ -1,5 +1,7 @@
 package PaymentExample;
 
+//https://chatgpt.com/c/695b06a8-48d8-8324-942a-4edde5fb848a
+
 // Entry point of the application
 // Demonstrates Strategy + Decorator + Observer patterns working together
 public class Main {
@@ -72,9 +74,9 @@ public class Main {
         // STRATEGY CHANGE AT RUNTIME
         // ===============================
         System.out.println("[STRATEGY] Switching payment method to UPI at runtime\n");
-
+        PaymentMethodFactory upiFactory = new UPIFactory("lakshman@okicici", "7653");
         amazon.setPaymentMethod(
-                new UPIPayment("lakshman@okicici", "7653")
+                upiFactory.createPaymentMethod()
         );
 
 

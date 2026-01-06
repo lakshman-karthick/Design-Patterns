@@ -94,7 +94,9 @@ interface PaymentSubject {
 class Payment implements PaymentSubject {
 
     // Strategy reference (composition)
+
     PaymentMethod paymentMethod;
+
 
     // Shared balance (static for demonstration)
     static float Balance = 10000;
@@ -159,8 +161,11 @@ class AmazonPayment extends Payment {
 
     public AmazonPayment() {
         // Default strategy assigned
-        paymentMethod =
-                new CreditCardPayment("12345678901", "2031", "123", "1234");
+        PaymentMethodFactory factory =
+                new CreditCardFactory("12345678901", "2031", "123", "1234");
+
+        setPaymentMethod(factory.createPaymentMethod());
+
     }
 }
 
@@ -172,8 +177,10 @@ class AmazonPayment extends Payment {
 class ElectricityBill extends Payment {
 
     public ElectricityBill() {
-        paymentMethod =
-                new CreditCardPayment("12345678901", "2031", "123", "1234");
+        PaymentMethodFactory factory =
+                new CreditCardFactory("12345678901", "2031", "123", "1234");
+
+        setPaymentMethod(factory.createPaymentMethod());
     }
 }
 

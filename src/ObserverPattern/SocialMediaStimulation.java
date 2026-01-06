@@ -166,7 +166,7 @@ class FeedPublisher implements SubjectUsers {
 }
 
 
-public class ObserverPattern
+public class SocialMediaStimulation
 {
     private static void printUserFeed(String userName,  User user) {
         System.out.println("Feed of " + userName + ":");
