@@ -64,21 +64,26 @@ public class Main {
         // ===============================
         System.out.println("[PAYMENT] Initiating payment for 'SG Bat'\n");
 
-        amazon.PaymentToConsumption(payableAmount, "SG Bat");
+        Command amazonPaymentCommand = new PaymentCommand(amazon,payableAmount,"SG Bat");
+        Command LoggingCommand = new LoggingCommand(amazonPaymentCommand);
+        LoggingCommand.execute();
+
 
         System.out.println("[BALANCE] Remaining balance after purchase: "
-                + amazon.getBalance() + "\n");
+                + Payment.getBalance() + "\n");
 
+        LoggingCommand.undo();
+
+        System.out.println("[BALANCE] Remaining balance after refund: "
+                + Payment.getBalance() + "\n");
 
         // ===============================
         // STRATEGY CHANGE AT RUNTIME
         // ===============================
         System.out.println("[STRATEGY] Switching payment method to UPI at runtime\n");
         PaymentMethodFactory upiFactory = new UPIFactory("lakshman@okicici", "7653");
-        amazon.setPaymentMethod(
-                upiFactory.createPaymentMethod()
-        );
-
+        Command setUPIPayment = new selectPaymentMethodCommand(upiFactory.createPaymentMethod(),amazon);
+        setUPIPayment.execute();
 
         // New purchase with same decorator rules
         System.out.println("[ORDER] Building price calculation for item: Kookabura Ball");
@@ -97,10 +102,12 @@ public class Main {
 
         System.out.println("[PAYMENT] Initiating payment for 'Kookabura Ball'\n");
 
-        amazon.PaymentToConsumption(payableAmount1, "Kookabura Ball");
+        Command amazonPaymentCommand2 = new PaymentCommand(amazon,payableAmount1,"Kookabura Ball");
+        Command LoggingCommand2 = new LoggingCommand(amazonPaymentCommand2);
+        LoggingCommand2.execute();
 
         System.out.println("[BALANCE] Remaining balance after purchase: "
-                + amazon.getBalance() + "\n");
+                + Payment.getBalance() + "\n");
 
 
         // ===============================
@@ -125,11 +132,22 @@ public class Main {
 
         System.out.println("[PAYMENT] Initiating Electricity bill payment\n");
 
-        electricity.PaymentToConsumption(payableAmount2, "Electricity");
+        Command electricityPaymentCommand = new PaymentCommand(electricity,payableAmount2,"100 units");
+        Command LoggingCommand3 = new LoggingCommand(electricityPaymentCommand);
+        LoggingCommand3.execute();
 
         System.out.println("[BALANCE] Remaining balance after electricity bill: "
-                + electricity.getBalance() + "\n");
+                + Payment.getBalance() + "\n");
 
+        LoggingCommand.undo();
+
+        System.out.println("[BALANCE] Remaining balance after refund electricity bill: "
+                + Payment.getBalance() + "\n");
+
+        LoggingCommand.undo();
+
+        System.out.println("[BALANCE] Remaining balance after refund for kukaburra ball: "
+                + Payment.getBalance() + "\n");
 
         // ===============================
         // SHARED STATE CHECK
@@ -140,3 +158,12 @@ public class Main {
         System.out.println("======================================");
     }
 }
+
+
+// ============================
+// E-COMMERCE
+// ============================
+// 1. Select Product
+// 2. Select Payment method
+// 3. Payment
+//

@@ -140,6 +140,14 @@ class Payment implements PaymentSubject {
         notifyFailure(Product);
     }
 
+    public void RefundPayment(Amount amount, String Product) {
+        float FinalAmount = amount.Calculate();
+        if (paymentMethod.pay()) {
+            Balance += FinalAmount;
+            notifyFailure(Product);
+        }
+    }
+
     // Static utility method to access shared balance
     static public float getBalance() {
         return Balance;
