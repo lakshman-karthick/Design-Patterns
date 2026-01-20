@@ -44,7 +44,7 @@ class CreditCardPayment implements PaymentMethod {
         System.out.println("Payment using Credit Card");
 
         // Credit card–specific validation logic
-        return cardNumber.length() == 11
+        return cardNumber.length() == 12
                 && cvv.length() == 3
                 && otp.length() == 4
                 && expiry.startsWith("20");
