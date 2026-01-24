@@ -5,45 +5,90 @@ package PaymentExample;
 import java.util.ArrayList;
 import java.util.List;
 
-// =====================
-// STRATEGY INTERFACE
-// =====================
-// This interface represents the STRATEGY.
-// It defines a COMMON CONTRACT for all payment behaviors.
-// The Payment class will depend ONLY on this interface,
-// not on any concrete payment implementation.
+/*****************************************************************************************
+ *
+ * 🧠 STRATEGY PATTERN – PAYMENT EXAMPLE
+ *
+ * GOAL:
+ *  - Define a FAMILY OF ALGORITHMS (Payment methods)
+ *  - ENCAPSULATE each one
+ *  - Make them INTERCHANGEABLE at runtime
+ *
+ * KEY IDEA:
+ *  - The client depends ONLY on an INTERFACE
+ *  - NOT on concrete implementations
+ *
+ *****************************************************************************************/
+
+/**
+ *  For this same usecase , we used composite pattern also.
+ */
+
+// ========================================================================================
+// 1️⃣ STRATEGY INTERFACE
+// ========================================================================================
+//
+// ➤ This is the HEART of the Strategy Pattern
+// ➤ Declares a COMMON CONTRACT for all payment behaviors
+// ➤ High-level modules depend ONLY on this interface
+//
+// Examples of strategies:
+//   - Credit Card
+//   - UPI
+//   - NetBanking
+//   - Wallet
+//
 interface PaymentMethod {
-    boolean pay();
+
+    /**
+     * Executes validation / authorization logic
+     * specific to a payment type.
+     *
+     * @return true if payment is valid, false otherwise
+     */
+    boolean check();
 }
 
 
-// =====================
-// CONCRETE STRATEGY 1
-// =====================
-// One concrete implementation of the strategy.
-// Encapsulates CREDIT CARD payment logic.
-class CreditCardPayment implements PaymentMethod {
 
-    private String cardNumber;
-    private String expiry;
-    private String cvv;
-    private String otp;
+// ========================================================================================
+// 2️⃣ CONCRETE STRATEGY – CREDIT CARD PAYMENT
+// ========================================================================================
+//
+// ➤ Encapsulates CREDIT CARD–specific behavior
+// ➤ Owns ONLY the data it needs
+// ➤ Implements the SAME interface as all other strategies
+//
+class CreditCardPaymentStrategy implements PaymentMethod {
 
-    // Each strategy maintains its OWN required data
-    public CreditCardPayment(String cardNumber, String expiry,
-                             String cvv, String otp) {
+    // Card-specific data (belongs ONLY to this strategy)
+    private final String cardNumber;
+    private final String expiry;
+    private final String cvv;
+    private final String otp;
+
+    /**
+     * Each strategy manages its OWN required data.
+     * No shared fields across strategies.
+     */
+    public CreditCardPaymentStrategy(String cardNumber,
+                             String expiry,
+                             String cvv,
+                             String otp) {
         this.cardNumber = cardNumber;
         this.expiry = expiry;
         this.cvv = cvv;
         this.otp = otp;
     }
 
-    // Implements the strategy-specific algorithm
+    /**
+     * Strategy-specific algorithm implementation
+     */
     @Override
-    public boolean pay() {
-        System.out.println("Payment using Credit Card");
+    public boolean check() {
+        System.out.println("💳 Payment using Credit Card");
 
-        // Credit card–specific validation logic
+        // Credit card–specific validation rules
         return cardNumber.length() == 12
                 && cvv.length() == 3
                 && otp.length() == 4
@@ -52,24 +97,33 @@ class CreditCardPayment implements PaymentMethod {
 }
 
 
-// =====================
-// CONCRETE STRATEGY 2
-// =====================
-// Another concrete implementation of the SAME strategy.
-// Encapsulates UPI payment logic.
+
+// ========================================================================================
+// 3️⃣ CONCRETE STRATEGY – UPI PAYMENT
+// ========================================================================================
+//
+// ➤ Another strategy in the SAME family
+// ➤ Completely different algorithm
+// ➤ SAME interface → interchangeable at runtime
+//
 class UPIPayment implements PaymentMethod {
 
-    private String upiId;
-    private String pin;
+    // UPI-specific data
+    private final String upiId;
+    private final String pin;
 
     public UPIPayment(String upiId, String pin) {
         this.upiId = upiId;
         this.pin = pin;
     }
 
-    // UPI-specific algorithm
+    /**
+     * UPI-specific validation logic
+     */
     @Override
-    public boolean pay() {
+    public boolean check() {
+        System.out.println("📱 Payment using UPI");
+
         return upiId.contains("@ok")
                 && pin.length() == 4;
     }
@@ -95,7 +149,7 @@ class Payment implements PaymentSubject {
 
     // Strategy reference (composition)
 
-    PaymentMethod paymentMethod;
+    PaymentInstrument paymentInstrument;
 
 
     // Shared balance (static for demonstration)
@@ -132,7 +186,7 @@ class Payment implements PaymentSubject {
         // Payment does NOT know HOW payment is done.
         // It simply calls pay() on the strategy.
         float FinalAmount = amount.Calculate();
-        if (paymentMethod.pay()) {
+        if (paymentInstrument.check()) {
             Balance -= FinalAmount;
             notifySuccess(Product);
             return;
@@ -142,7 +196,7 @@ class Payment implements PaymentSubject {
 
     public void RefundPayment(Amount amount, String Product) {
         float FinalAmount = amount.Calculate();
-        if (paymentMethod.pay()) {
+        if (paymentInstrument.check()) {
             Balance += FinalAmount;
             notifyFailure(Product);
         }
@@ -154,8 +208,10 @@ class Payment implements PaymentSubject {
     }
 
     // Allows changing strategy at runtime
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
+    public void setPaymentMethod(PaymentInstrument paymentInstrument) {
+        System.out.println("Setting payment method: " + paymentInstrument.name());
+        System.out.println("Possible Card Options:" + paymentInstrument.getPaymentInstruments());
+        this.paymentInstrument = paymentInstrument;
     }
 }
 
@@ -170,7 +226,7 @@ class AmazonPayment extends Payment {
     public AmazonPayment() {
         // Default strategy assigned
         PaymentMethodFactory factory =
-                new CreditCardFactory("12345678901", "2031", "123", "1234");
+                new CreditCardFactory("679054321234", "2031", "Lakshman Karthick", "123".toCharArray(),"1234".toCharArray());
 
         setPaymentMethod(factory.createPaymentMethod());
 
@@ -186,7 +242,7 @@ class ElectricityBill extends Payment {
 
     public ElectricityBill() {
         PaymentMethodFactory factory =
-                new CreditCardFactory("12345678901", "2031", "123", "1234");
+                new CreditCardFactory("401834569087", "2031","Lakshman Karthick T", "123".toCharArray(), "1234".toCharArray());
 
         setPaymentMethod(factory.createPaymentMethod());
     }

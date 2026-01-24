@@ -1,40 +1,44 @@
 package PaymentExample;
 
 abstract class PaymentMethodFactory {
-    abstract PaymentMethod createPaymentMethod();
+    abstract PaymentInstrument createPaymentMethod();
 }
 
 class CreditCardFactory extends PaymentMethodFactory {
-    String cardNumber;
-    String expiry;
-    String cvv;
-    String otp;
 
-    CreditCardFactory(String cardNumber, String expiry,
-                      String cvv, String otp) {
-        this.cardNumber = cardNumber;
-        this.expiry = expiry;
-        this.cvv = cvv;
-        this.otp = otp;
+    CardPaymentContext cardPaymentContext;
+    CreditCardFactory(String cardNumber, String expiry,String cardholderName,
+                      char[] cvv, char[] otp) {
+        cardPaymentContext = CardPaymentContext.create(cardNumber,expiry,cardholderName,cvv,otp);
     }
 
+
     @Override
-    PaymentMethod createPaymentMethod() {
-        return new CreditCardPayment(cardNumber, expiry, cvv, otp);
+    CreditCardPayment createPaymentMethod() {
+        CreditCardPayment creditCardPayment = new CreditCardPayment();
+        VisaCardPayment visaCardPayment = new VisaCardPayment(cardPaymentContext);
+        RupayCardPayment rupayCardPayment = new RupayCardPayment(cardPaymentContext);
+        creditCardPayment.addPaymentMethod(visaCardPayment);
+        creditCardPayment.addPaymentMethod(rupayCardPayment);
+        return creditCardPayment;
     }
 }
 
 class UPIFactory extends PaymentMethodFactory {
     private String upiId;
     private String pin;
-
-    public UPIFactory(String upiId, String pin) {
-        this.upiId = upiId;
-        this.pin = pin;
+    UPIPaymentContext upiPaymentContext;
+    public UPIFactory(String upiId, char[] pin) {
+        this.upiPaymentContext = UPIPaymentContext.create(upiId,pin);
     }
 
     @Override
-    PaymentMethod createPaymentMethod() {
-        return new UPIPayment(upiId, pin);
+    WalletPayment createPaymentMethod() {
+        WalletPayment walletPayment = new WalletPayment();
+        GooglePayPayment googlePayPayment = new GooglePayPayment(upiPaymentContext);
+        PaytmPayment paytmPayment = new PaytmPayment(upiPaymentContext);
+        walletPayment.addPaymentMethod(googlePayPayment);
+        walletPayment.addPaymentMethod(paytmPayment);
+        return walletPayment;
     }
 }

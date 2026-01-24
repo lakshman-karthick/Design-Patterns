@@ -34,23 +34,23 @@ class PaymentCommand implements Command {
 
 
 class selectPaymentMethodCommand implements Command {
-    PaymentMethod paymentMethod;
+    PaymentInstrument paymentInstrument;
     Payment pay;
-    Stack<PaymentMethod> previousPaymentMethodStack = new Stack<>();
-    selectPaymentMethodCommand(PaymentMethod paymentMethod, Payment pay) {
-        this.paymentMethod = paymentMethod;
+    Stack<PaymentInstrument> previousPaymentMethodStack = new Stack<>();
+    selectPaymentMethodCommand(PaymentInstrument paymentInstrument, Payment pay) {
+        this.paymentInstrument = paymentInstrument;
         this.pay = pay;
     }
 
     @Override
     public void execute() {
-        previousPaymentMethodStack.push(pay.paymentMethod);
-        pay.setPaymentMethod(paymentMethod);
+        previousPaymentMethodStack.push(pay.paymentInstrument);
+        pay.setPaymentMethod(paymentInstrument);
     }
 
     @Override
     public void undo() {
-        PaymentMethod undoPaymentMethod = previousPaymentMethodStack.pop();
+        PaymentInstrument undoPaymentMethod = previousPaymentMethodStack.pop();
         pay.setPaymentMethod(undoPaymentMethod);
     }
 }
