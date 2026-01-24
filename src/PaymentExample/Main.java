@@ -9,20 +9,11 @@ public class Main {
     public static void main(String[] args) {
 
 
-          PaymentGatewayFacade paymentGatewayFacade = new PaymentGatewayFacade();
-          paymentGatewayFacade.AmazonPaymentFacade("SG Bat",1000,new UPIFactory("lakshman@okicici","2376"));
-          paymentGatewayFacade.MonthlyBillPayment("Electricity",500,new CreditCardFactory("675687698901","2031","234","6547"));
+        PaymentGatewayFacade paymentGatewayFacade = new PaymentGatewayFacade();
+        paymentGatewayFacade.AmazonPaymentFacade("SG Bat",1000,new UPIFactory("lakshman@okicici","2376".toCharArray()));
+        paymentGatewayFacade.AmazonPaymentFacade("Kookabura Ball",400,new CreditCardFactory("412345678998","2031","Lakshman Karthick","123".toCharArray(),"2376".toCharArray()));
+        paymentGatewayFacade.MonthlyBillPayment("Electricity",500,new CreditCardFactory("675687698901","2031","Lakshman Karthick","234".toCharArray(),"6547".toCharArray()));
 
-
-//        LoggingCommand.undo();
-//
-//        System.out.println("[BALANCE] Remaining balance after refund electricity bill: "
-//                + Payment.getBalance() + "\n");
-//
-//        LoggingCommand.undo();
-//
-//        System.out.println("[BALANCE] Remaining balance after refund for kukaburra ball: "
-//                + Payment.getBalance() + "\n");
 
         // ===============================
         // SHARED STATE CHECK
