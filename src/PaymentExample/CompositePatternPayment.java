@@ -48,8 +48,9 @@ abstract class CompositePayment implements PaymentInstrument {
 
     @Override
     public boolean check() {
-        for (PaymentInstrument paymentInstrument : paymentInstruments) {
-            if (paymentInstrument.check()) {
+        PaymentIterator paymentIterator = new PaymentInstrumentIterator(paymentInstruments);
+        while (paymentIterator.hasNext()) {
+            if (paymentIterator.next().check()) {
                 return true;
             }
         }

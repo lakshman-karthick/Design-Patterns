@@ -24,9 +24,28 @@ class CreditCardFactory extends PaymentMethodFactory {
     }
 }
 
+class DebitCardFactory extends PaymentMethodFactory {
+
+    CardPaymentContext cardPaymentContext;
+    DebitCardFactory(String cardNumber, String expiry,String cardholderName,
+                      char[] cvv, char[] otp) {
+        cardPaymentContext = CardPaymentContext.create(cardNumber,expiry,cardholderName,cvv,otp);
+    }
+
+
+    @Override
+    DebitCardPayment createPaymentMethod() {
+        DebitCardPayment debitCardPayment = new DebitCardPayment();
+        VisaCardPayment visaCardPayment = new VisaCardPayment(cardPaymentContext);
+        RupayCardPayment rupayCardPayment = new RupayCardPayment(cardPaymentContext);
+        debitCardPayment.addPaymentMethod(visaCardPayment);
+        debitCardPayment.addPaymentMethod(rupayCardPayment);
+        return debitCardPayment;
+    }
+}
+
 class UPIFactory extends PaymentMethodFactory {
-    private String upiId;
-    private String pin;
+
     UPIPaymentContext upiPaymentContext;
     public UPIFactory(String upiId, char[] pin) {
         this.upiPaymentContext = UPIPaymentContext.create(upiId,pin);
@@ -37,8 +56,11 @@ class UPIFactory extends PaymentMethodFactory {
         WalletPayment walletPayment = new WalletPayment();
         GooglePayPayment googlePayPayment = new GooglePayPayment(upiPaymentContext);
         PaytmPayment paytmPayment = new PaytmPayment(upiPaymentContext);
+        PhonePePayment phonePePayment = new PhonePePayment(upiPaymentContext);
+        PhonePeAdaptor phonePeAdaptor = new PhonePeAdaptor(phonePePayment);
         walletPayment.addPaymentMethod(googlePayPayment);
         walletPayment.addPaymentMethod(paytmPayment);
+        walletPayment.addPaymentMethod(phonePeAdaptor);
         return walletPayment;
     }
 }

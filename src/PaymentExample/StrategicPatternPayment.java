@@ -157,6 +157,12 @@ class Payment implements PaymentSubject {
 
     List<PaymentObserver> observers =  new ArrayList<>();
 
+    protected PaymentState state = new InitiatePaymentState();
+
+    void setState(PaymentState state) {
+        this.state = state;
+    }
+
     @Override
     public void addObserver(PaymentObserver observer) {
         observers.add(observer);
@@ -179,27 +185,15 @@ class Payment implements PaymentSubject {
         }
     }
 
-    // Delegates payment behavior to the strategy
     public void PaymentToConsumption(Amount amount, String Product) {
-
-        // Strategy Pattern in action:
-        // Payment does NOT know HOW payment is done.
-        // It simply calls pay() on the strategy.
-        float FinalAmount = amount.Calculate();
-        if (paymentInstrument.check()) {
-            Balance -= FinalAmount;
-            notifySuccess(Product);
-            return;
-        }
-        notifyFailure(Product);
+        System.out.println("Current State: " + state.name());
+        state.pay(this, amount, Product);
+        System.out.println("Payment State: " + state.name());
     }
 
     public void RefundPayment(Amount amount, String Product) {
-        float FinalAmount = amount.Calculate();
-        if (paymentInstrument.check()) {
-            Balance += FinalAmount;
-            notifyFailure(Product);
-        }
+        System.out.println("Current State: " + state.name());
+        state.refund(this, amount, Product);
     }
 
     // Static utility method to access shared balance
@@ -209,12 +203,11 @@ class Payment implements PaymentSubject {
 
     // Allows changing strategy at runtime
     public void setPaymentMethod(PaymentInstrument paymentInstrument) {
-        System.out.println("Setting payment method: " + paymentInstrument.name());
-        System.out.println("Possible Card Options:" + paymentInstrument.getPaymentInstruments());
+        System.out.println("Current State: " + state.name());
         this.paymentInstrument = paymentInstrument;
+        state.selectPaymentMethod(this);
     }
 }
-
 
 // =====================
 // CONCRETE CONTEXT 1
@@ -223,14 +216,6 @@ class Payment implements PaymentSubject {
 // It decides the DEFAULT strategy during construction.
 class AmazonPayment extends Payment {
 
-    public AmazonPayment() {
-        // Default strategy assigned
-        PaymentMethodFactory factory =
-                new CreditCardFactory("679054321234", "2031", "Lakshman Karthick", "123".toCharArray(),"1234".toCharArray());
-
-        setPaymentMethod(factory.createPaymentMethod());
-
-    }
 }
 
 
@@ -240,11 +225,5 @@ class AmazonPayment extends Payment {
 // Another use case using the SAME strategy infrastructure.
 class ElectricityBill extends Payment {
 
-    public ElectricityBill() {
-        PaymentMethodFactory factory =
-                new CreditCardFactory("401834569087", "2031","Lakshman Karthick T", "123".toCharArray(), "1234".toCharArray());
-
-        setPaymentMethod(factory.createPaymentMethod());
-    }
 }
 
