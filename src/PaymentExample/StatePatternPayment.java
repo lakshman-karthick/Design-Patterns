@@ -12,9 +12,9 @@ interface PaymentState {
 
     void selectPaymentMethod(Payment payment);
 
-    void pay(Payment payment, Amount amount, String product);
+    void pay(Payment payment, Amount amount, String product, String transactionId);
 
-    void refund(Payment payment, Amount amount, String product);
+    void refund(Payment payment, Amount amount, String product, String transactionId);
 
     String name();
 }
@@ -27,12 +27,12 @@ class InitiatePaymentState implements PaymentState{
     }
 
     @Override
-    public void pay(Payment payment, Amount amount, String product) {
+    public void pay(Payment payment, Amount amount, String product, String transactionId) {
         throw new UnsupportedOperationException("Payment method not chosen yet.");
     }
 
     @Override
-    public void refund(Payment payment, Amount amount, String product) {
+    public void refund(Payment payment, Amount amount, String product, String transactionId) {
         throw new UnsupportedOperationException("Payment method not chosen yet.");
     }
 
@@ -44,26 +44,24 @@ class InitiatePaymentState implements PaymentState{
 
 class PaymentProcessingState implements PaymentState{
 
+
     @Override
     public void selectPaymentMethod(Payment payment) {
         throw new UnsupportedOperationException("Payment processing is already started.");
     }
 
     @Override
-    public void pay(Payment payment, Amount amount, String Product) {
-        float FinalAmount = amount.Calculate();
-        if (payment.paymentInstrument.check()) {
-            payment.Balance -= FinalAmount;
-            payment.notifySuccess(Product);
+    public void pay(Payment payment, Amount amount, String Product, String transactionId) {
+        PaymentService paymentService = payment.getPaymentService();
+        boolean success = paymentService.paymentExecution(payment, amount, Product, transactionId);
+        if(success) {
             payment.setState(new PaymentSuccessState());
-            return;
         }
-        payment.notifyFailure(Product);
         payment.setState(new PaymentFailureState());
     }
 
     @Override
-    public void refund(Payment payment, Amount amount, String product) {
+    public void refund(Payment payment, Amount amount, String product, String transactionId) {
         throw new UnsupportedOperationException("Payment processing is going on.");
     }
 
@@ -82,18 +80,15 @@ class PaymentSuccessState implements PaymentState{
     }
 
     @Override
-    public void pay(Payment payment, Amount amount, String product) {
+    public void pay(Payment payment, Amount amount, String product, String transactionId) {
         throw new UnsupportedOperationException("Payment is already successful");
     }
 
     @Override
-    public void refund(Payment payment, Amount amount, String Product) {
-        float FinalAmount = amount.Calculate();
-        if (payment.paymentInstrument.check()) {
-            payment.Balance += FinalAmount;
-            payment.notifyFailure(Product);
-            payment.setState(new RefundState());
-        }
+    public void refund(Payment payment, Amount amount, String Product, String transactionId) {
+        PaymentService paymentService = payment.getPaymentService();
+        paymentService.refundExecution(payment,amount,Product,transactionId);
+        payment.setState(new RefundState());
     }
 
     @Override
@@ -110,12 +105,12 @@ class PaymentFailureState implements PaymentState{
     }
 
     @Override
-    public void pay(Payment payment, Amount amount, String product) {
+    public void pay(Payment payment, Amount amount, String product, String transactionId) {
         throw new UnsupportedOperationException("Wait for payment method to be chosen.");
     }
 
     @Override
-    public void refund(Payment payment, Amount amount, String product) {
+    public void refund(Payment payment, Amount amount, String product, String transactionId) {
         throw new UnsupportedOperationException("Payment is not yet completed");
     }
 
@@ -133,12 +128,12 @@ class RefundState implements PaymentState{
     }
 
     @Override
-    public void pay(Payment payment, Amount amount, String product) {
+    public void pay(Payment payment, Amount amount, String product, String transactionId) {
         throw new IllegalStateException("Payment refunded");
     }
 
     @Override
-    public void refund(Payment payment, Amount amount, String product) {
+    public void refund(Payment payment, Amount amount, String product, String transactionId) {
         throw new IllegalStateException("Already refunded");
     }
 

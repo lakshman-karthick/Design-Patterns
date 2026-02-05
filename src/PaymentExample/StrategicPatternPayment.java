@@ -151,9 +151,14 @@ class Payment implements PaymentSubject {
 
     PaymentInstrument paymentInstrument;
 
+    PaymentService paymentService;
 
     // Shared balance (static for demonstration)
     static float Balance = 10000;
+
+    Payment(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
 
     List<PaymentObserver> observers =  new ArrayList<>();
 
@@ -185,15 +190,15 @@ class Payment implements PaymentSubject {
         }
     }
 
-    public void PaymentToConsumption(Amount amount, String Product) {
+    public void PaymentToConsumption(Amount amount, String Product, String TransactionId) {
         System.out.println("Current State: " + state.name());
-        state.pay(this, amount, Product);
+        state.pay(this, amount, Product, TransactionId);
         System.out.println("Payment State: " + state.name());
     }
 
-    public void RefundPayment(Amount amount, String Product) {
+    public void RefundPayment(Amount amount, String Product, String TransactionId) {
         System.out.println("Current State: " + state.name());
-        state.refund(this, amount, Product);
+        state.refund(this, amount, Product,TransactionId);
     }
 
     // Static utility method to access shared balance
@@ -207,6 +212,10 @@ class Payment implements PaymentSubject {
         this.paymentInstrument = paymentInstrument;
         state.selectPaymentMethod(this);
     }
+
+    public PaymentService getPaymentService() {
+        return paymentService;
+    }
 }
 
 // =====================
@@ -215,7 +224,9 @@ class Payment implements PaymentSubject {
 // AmazonPayment is a specific USE CASE.
 // It decides the DEFAULT strategy during construction.
 class AmazonPayment extends Payment {
-
+    AmazonPayment(PaymentService paymentService) {
+        super(paymentService);
+    }
 }
 
 
@@ -224,6 +235,8 @@ class AmazonPayment extends Payment {
 // =====================
 // Another use case using the SAME strategy infrastructure.
 class ElectricityBill extends Payment {
-
+    ElectricityBill(PaymentService paymentService) {
+        super(paymentService);
+    }
 }
 
