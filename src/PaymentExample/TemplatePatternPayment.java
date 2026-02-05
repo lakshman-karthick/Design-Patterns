@@ -14,12 +14,14 @@ abstract class PaymentTemplate {
 
     String Product;
     float BaseAmount;
+    PaymentService paymentService;
     PaymentMethodFactory paymentFactory;
 
-    PaymentTemplate(String Product,float BaseAmount,PaymentMethodFactory paymentFactory){
+    PaymentTemplate(String Product,float BaseAmount,PaymentMethodFactory paymentFactory,PaymentService paymentService) {
         this.Product = Product;
         this.BaseAmount = BaseAmount;
         this.paymentFactory = paymentFactory;
+        this.paymentService = paymentService;
     }
 
     void ProcessPayment() {
@@ -79,14 +81,15 @@ abstract class PaymentTemplate {
 
 class AmazonPaymentTemplate extends PaymentTemplate {
 
-    AmazonPaymentTemplate(String Product, float BaseAmount, PaymentMethodFactory paymentFactory) {
-        super(Product, BaseAmount, paymentFactory);
+
+    AmazonPaymentTemplate(String Product, float BaseAmount, PaymentMethodFactory paymentFactory, PaymentService paymentService) {
+        super(Product, BaseAmount, paymentFactory, paymentService);
     }
 
     @Override
     protected Payment ContextCreation() {
         System.out.println("[INIT] Creating Payment Template");
-        return new AmazonPayment();
+        return new AmazonPayment(paymentService);
     }
 
     @Override
@@ -121,14 +124,14 @@ class AmazonPaymentTemplate extends PaymentTemplate {
 
 class MonthlyBillPaymentTemplate extends PaymentTemplate {
 
-    MonthlyBillPaymentTemplate(String Product, float BaseAmount, PaymentMethodFactory paymentFactory) {
-        super(Product, BaseAmount, paymentFactory);
+    MonthlyBillPaymentTemplate(String Product, float BaseAmount, PaymentMethodFactory paymentFactory, PaymentService paymentService) {
+        super(Product, BaseAmount, paymentFactory,paymentService);
     }
 
     @Override
     protected Payment ContextCreation() {
         System.out.println("[INIT] Creating Payment Template");
-        return new ElectricityBill();
+        return new ElectricityBill(paymentService);
     }
 
     @Override
